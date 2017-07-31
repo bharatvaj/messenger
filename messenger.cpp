@@ -78,7 +78,7 @@ void *reader(void *arg){
         }
         if(c == ESCCHAR){
             print("bye da !");
-            write(buddyfd, ESCSTR, 1);
+            write_data(buddyfd, ESCSTR, 1);
             close(buddyfd);
             exit(EXIT_SUCCESS);
         }
