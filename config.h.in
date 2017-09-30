@@ -1,0 +1,8 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+//cmake settings
+#define BUFFER_SIZE @BUFFER_SIZE@
+#define DEFAULT_PORT @DEFAULT_PORT@
+#define PROGRAM_NAME "Messenger"
+#cmakedefine ENABLE_LOG
+#endif

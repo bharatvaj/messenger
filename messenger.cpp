@@ -5,11 +5,11 @@
 #include <signal.h>
 #include <iomanip>
 
-#define ENABLE_LOG
 #define ENABLE_LOG_COLOR
 #include "clog.h"
 #include "network_utils.h"
 #include "init.h"
+#include "config.h"
 
 using namespace std;
 
@@ -18,8 +18,6 @@ bool isServer = false;
 pthread_t readThread;
 
 int buddyfd = -1;
-
-#define DEFAULT_PORT 9050
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 256
