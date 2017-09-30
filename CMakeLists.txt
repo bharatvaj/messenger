@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 project(messenger)
 find_package(Threads REQUIRED)
 
-set(arch g++_ntoarmv7le)
 
 set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_COMPILER_TARGET ${arch})
 set(CMAKE_CXX_FLAGS "-fPIC -Wall")
 
 include_directories(${PROJECT_SOURCE_DIR})
