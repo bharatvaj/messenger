@@ -19,20 +19,18 @@ pthread_t readThread;
 
 int buddyfd = -1;
 
-#define DEFAULT_PORT 27000
+#define DEFAULT_PORT 9050
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 256
 #endif
 
 #define ESCCHAR ((char)16)
-#define NEWCHAR ((char)15)
 
 char ESCSTR[] = {ESCCHAR};
-char NEWSTR[] = {NEWCHAR};
 
 int i = 0;
-string getColor(){
+const char *getColor(){
     i++;
     if(i % 6 == 0)return COLOR_RED;
     else if(i % 6 == 1)return COLOR_RED;
@@ -49,15 +47,15 @@ void *startServer(void *opt){
 
 void print(string str, int servfd = 0){
     if(servfd != 0){
-        write(servfd, (str + NEWCHAR).c_str(), str.size() + 1);
+        write(servfd, (str).c_str(), str.size());
         return;
     }
-    cout << getColor().c_str() << str << COLOR_RESET << endl;
+    cout << getColor() << str << COLOR_RESET << endl;
 }
 
 void exit_handler(int sig){
     char c = (char)32;
-    print("popaa po en ponath thaandi po, Y/N?");
+    print("Are you sure, you want to exit, y/N?");
     cin >> c;
     if(c == 'Y' || c == 'y'){
         write(buddyfd, ESCSTR, 1);
@@ -72,13 +70,13 @@ void *reader(void *arg){
         char *buffer = (char *)malloc(BUFFER_SIZE);
         char c = '\0';
         int count = 0;
-        while(c != NEWCHAR && c != ESCCHAR){
+        while(c != ESCCHAR){
             read(buddyfd, &c, 1);
             buffer[count++] = c;
         }
         if(c == ESCCHAR){
-            print("bye da !");
-            write_data(buddyfd, ESCSTR, 1);
+            print("Buddy exited from chat!");
+            print(ESCSTR, buddyfd);
             close(buddyfd);
             exit(EXIT_SUCCESS);
         }
@@ -141,10 +139,10 @@ int main(int argc, char *argv[]){
     }
     string buddy = argv[1];
     if((buddyfd = connect_server(buddy.c_str(), DEFAULT_PORT)) < 0){
-        print("target reach panna mudila bha, net modhala connect panniyaa!?");
+        print("Cannot reach host, try again later");
         return -1;
     }
-    print("connet aaiduchu... pesuraa ippo pesu");
+    print("Connection established succesfully");
     start_communication();
 	return 0;
 }
