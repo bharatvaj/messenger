@@ -24,8 +24,10 @@ int buddyfd = -1;
 #endif
 
 #define ESCCHAR ((char)16)
+#define BUDDYNAME "someone"
+#define ESCSTRD ((char)2)
+char ESCSTR[] = {ESCSTRD};
 
-char ESCSTR[] = {ESCCHAR};
 
 int i = 0;
 const char *getColor(){
@@ -72,7 +74,7 @@ void *reader(void *arg){
             read(buddyfd, &c, 1);
             buffer[count++] = c;
         }
-        if(c == ESCCHAR){
+        if(c == ESCSTR[0]){
             print("Buddy exited from chat!");
             print(ESCSTR, buddyfd);
             close(buddyfd);
@@ -80,11 +82,11 @@ void *reader(void *arg){
         }
         string buf = string(writeBuffer);
         if(isWriting){
-            cout << '\r' << getColor() << "pangu: " << COLOR_RESET << buffer;
+            cout << '\r' << getColor() << BUDDYNAME << ": " << COLOR_RESET << buffer;
             cout << '\n' << "me: " << writeBuffer << std::flush;
             continue;
         }
-        cout << getColor() << "pangu: " << COLOR_RESET << buf << endl;
+        cout << getColor() << BUDDYNAME << ": " << COLOR_RESET << buf << endl;
     }
     return NULL;
 }
@@ -99,6 +101,7 @@ void writer(){
         while((c = getchar()) != '\n'){
             writeBuffer[++writePtr] = c;
         }
+	writeBuffer[++writePtr]=ESCCHAR;
         //getline(cin, writeBuffer);
         isWriting = false;
         print(writeBuffer, buddyfd);
@@ -123,13 +126,13 @@ void start_communication(){
 int main(int argc, char *argv[]){
     init();
     if(argc < 2){
-        print("ip address kudra venna");
+        print("Destination address is required");
         return -1;
     }
     signal(SIGINT, exit_handler);
     if(*argv[1] == 's'){
         if((buddyfd = start_server(DEFAULT_PORT)) < 0){
-            print("etho error daw close pantu open pannu");
+            print("Unexpected error occured");
             return -1;
         }
         start_communication();
