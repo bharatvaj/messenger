@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #if defined(__linux__) || defined(__APPLE__)
 
-#if defined(__linux__) && defined(kernel_version_2_4) 
+#if defined(__linux__) && defined(kernel_version_2_4)
 #include <sys/sendfile.h>
 #endif
 #include <unistd.h>
@@ -13,6 +13,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <string.h>
 #endif
 
 #include "clog.h"
@@ -158,7 +159,7 @@ int start_server(int port){
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons( port );
 	socklen_t cli_size = sizeof(struct sockaddr_in);
-	
+
 	if(cont == port){
 		log_inf(_NET_TAG, "Connection accepted");
 		return accept(servfd, (struct sockaddr *)&client, &cli_size);

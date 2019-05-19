@@ -30,15 +30,15 @@ char ESCSTR[] = {ESCSTRD};
 
 
 int i = 0;
-const char *getColor(){
-    i++;
-    if(i % 6 == 0)return COLOR_RED;
-    else if(i % 6 == 1)return COLOR_RED;
-    else if(i % 6 == 2)return COLOR_GREEN;
-    else if(i % 6 == 3)return COLOR_CYAN;
-    else if(i % 6 == 4)return COLOR_YELLOW;
-    else return COLOR_MAGENTA;
-}
+// const char *getColor(){
+//     i++;
+//     if(i % 6 == 0)return COLOR_RED;
+//     else if(i % 6 == 1)return COLOR_RED;
+//     else if(i % 6 == 2)return COLOR_GREEN;
+//     else if(i % 6 == 3)return COLOR_CYAN;
+//     else if(i % 6 == 4)return COLOR_YELLOW;
+//     else return COLOR_MAGENTA;
+// }
 
 void *startServer(void *opt){
     buddyfd = start_server(DEFAULT_PORT);
@@ -50,7 +50,8 @@ void print(string str, int servfd = 0){
         write(servfd, (str).c_str(), str.size());
         return;
     }
-    cout << getColor() << str << COLOR_RESET << endl;
+    // cout << getColor() << str << COLOR_RESET << endl;
+    cout << str << endl;
 }
 
 void exit_handler(int sig){
@@ -82,11 +83,13 @@ void *reader(void *arg){
         }
         string buf = string(writeBuffer);
         if(isWriting){
-            cout << '\r' << getColor() << BUDDYNAME << ": " << COLOR_RESET << buffer;
-            cout << '\n' << "me: " << writeBuffer << std::flush;
+          // cout << '\r' << getColor() << BUDDYNAME << ": " << COLOR_RESET << buffer;
+            cout << '\r' << BUDDYNAME << ": " << buffer
+            << '\n' << "me: " << writeBuffer << std::flush;
             continue;
         }
-        cout << getColor() << BUDDYNAME << ": " << COLOR_RESET << buf << endl;
+        // cout << getColor() << BUDDYNAME << ": " << COLOR_RESET << buf << endl;
+        cout << BUDDYNAME << ": " << buf << endl;
     }
     return NULL;
 }
@@ -94,7 +97,8 @@ void *reader(void *arg){
 void writer(){
     while (1) {
         memset(writeBuffer, '\0', BUFFER_SIZE);
-        cout << COLOR_RESET << "me: " << COLOR_RESET;
+        // cout << COLOR_RESET << "me: " << COLOR_RESET;
+        cout << "me: ";
         isWriting = true;
         char c = '\0';
         int writePtr = -1;
@@ -109,7 +113,7 @@ void writer(){
 }
 
 void cleanerThread(void *arg){
-    print("bye da !");
+    print("bye!");
     close(buddyfd);
     exit(EXIT_SUCCESS);
 

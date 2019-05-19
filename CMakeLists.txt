@@ -17,5 +17,5 @@ set(CMAKE_CXX_FLAGS "-fPIC -Wall")
 
 include_directories(${PROJECT_SOURCE_DIR})
 
-add_executable(messenger messenger.cpp)
+add_executable(messenger messenger.cpp clog.c)
 target_link_libraries(messenger ${CMAKE_THREAD_LIBS_INIT})
