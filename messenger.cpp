@@ -5,8 +5,7 @@
 #include <signal.h>
 #include <iomanip>
 
-#define ENABLE_LOG_COLOR
-#include "clog.h"
+#include <clog/clog.h>
 #include "network_utils.h"
 #include "init.h"
 #include "config.h"

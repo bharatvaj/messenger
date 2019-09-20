@@ -1,21 +1,30 @@
-cmake_minimum_required(VERSION 2.8)
-project(messenger)
+cmake_minimum_required(VERSION 3.8)
+project(messenger CXX)
+find_package(clog CONFIG REQUIRED)
 find_package(Threads REQUIRED)
-
-add_definitions(-DENABLE_LOG)
 
 set(BUFFER_SIZE 256)
 set(DEFAULT_PORT 8400)
 
 configure_file(
-	"${PROJECT_SOURCE_DIR}/config.h.in"
-	"${PROJECT_SOURCE_DIR}/config.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+	"${CMAKE_CURRENT_SOURCE_DIR}/config.h"
 )
 
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-fPIC -Wall")
+add_executable(messenger messenger.cpp)
+target_compile_features(messenger PRIVATE cxx_std_11)
 
-include_directories(${PROJECT_SOURCE_DIR})
+if(EMSCRIPTEN)
+	set(CMAKE_CXX_STANDARD 11)
+	set_target_properties(messenger PROPERTIES 
+		LINK_FLAGS "-g4 -s WASM=1 -s SOCKET_DEBUG=1"
+	)
+endif()
 
-add_executable(messenger messenger.cpp clog.c)
-target_link_libraries(messenger ${CMAKE_THREAD_LIBS_INIT})
+target_include_directories(messenger PRIVATE 
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/>
+	$<INSTALL_INTERFACE:include>
+)
+
+target_link_libraries(messenger PRIVATE clog::clog)
+target_link_libraries(messenger PRIVATE ${CMAKE_THREAD_LIBS_INIT})
