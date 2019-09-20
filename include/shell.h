@@ -5,7 +5,7 @@
  * shell.h
  *
  *  Created on: 23-Oct-2016
- *      Author: root
+ *      Author: laz3r
  */
 #ifdef __GNUG__
 #include <iostream>

@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 build
 include/config.h
+=======
+build/
+config.h
+>>>>>>> 0cf82a82d8f7251fae0a69f5005885ecb45b0ee3

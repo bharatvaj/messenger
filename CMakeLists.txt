@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 project(messenger CXX)
+
 find_package(clog CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 

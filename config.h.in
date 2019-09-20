@@ -4,5 +4,4 @@
 #define BUFFER_SIZE @BUFFER_SIZE@
 #define DEFAULT_PORT @DEFAULT_PORT@
 #define PROGRAM_NAME "Messenger"
-#cmakedefine ENABLE_LOG
 #endif
