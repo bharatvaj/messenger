@@ -1,20 +1,16 @@
-#include<iostream>
-#include <string>
+#include <stdio.h>
+#include <string.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <signal.h>
-#include <iomanip>
 
-#include <clog/clog.h>
+#include <clog.h>
 #include "network_utils.h"
-#include "init.h"
 #include "config.h"
 
-using namespace std;
+uint8_t is_server = 1;
 
-bool isServer = false;
-
-pthread_t readThread;
+pthread_t read_thread;
 
 int buddyfd = -1;
 
@@ -39,33 +35,32 @@ int i = 0;
 //     else return COLOR_MAGENTA;
 // }
 
-void *startServer(void *opt){
-    buddyfd = start_server(DEFAULT_PORT);
-    return NULL;
-}
-
-void print(string str, int servfd = 0){
+void print(const char* str, int servfd){
     if(servfd != 0){
-        write(servfd, (str).c_str(), str.size());
+        // TODO This will probably cause segfault, check this out later.
+        write(servfd, str, strlen(str));
         return;
     }
     // cout << getColor() << str << COLOR_RESET << endl;
-    cout << str << endl;
+    printf("%s\n", str);
 }
 
 void exit_handler(int sig){
-    char c = (char)32;
-    print("Are you sure, you want to exit, y/N?");
-    cin >> c;
+    char c;
+    fprintf(stderr, "Are you sure, you want to exit, y/N?");
+    c = *fgets(&c, 1, stdin);
     if(c == 'Y' || c == 'y'){
         write(buddyfd, ESCSTR, 1);
         exit(EXIT_SUCCESS);
     }
 }
 
-bool isWriting = true;
-char *writeBuffer = (char *)malloc(BUFFER_SIZE);
+int8_t is_writing = 1;
+char *write_buffer = NULL;
 void *reader(void *arg){
+    if (write_buffer == NULL) {
+        write_buffer = (char *)malloc(BUFFER_SIZE);
+    }
     while (1) {
         char *buffer = (char *)malloc(BUFFER_SIZE);
         char c = '\0';
@@ -75,44 +70,43 @@ void *reader(void *arg){
             buffer[count++] = c;
         }
         if(c == ESCSTR[0]){
-            print("Buddy exited from chat!");
+            fprintf(stderr, "Buddy exited from chat!");
             print(ESCSTR, buddyfd);
             close(buddyfd);
             exit(EXIT_SUCCESS);
         }
-        string buf = string(writeBuffer);
-        if(isWriting){
+        if(is_writing){
           // cout << '\r' << getColor() << BUDDYNAME << ": " << COLOR_RESET << buffer;
-            cout << '\r' << BUDDYNAME << ": " << buffer
-            << '\n' << "me: " << writeBuffer << std::flush;
+            printf("\r%s: %s\n"
+                   "me: %s", BUDDYNAME, buffer, write_buffer);
             continue;
         }
         // cout << getColor() << BUDDYNAME << ": " << COLOR_RESET << buf << endl;
-        cout << BUDDYNAME << ": " << buf << endl;
+        printf("%s: %s\n", BUDDYNAME, write_buffer);
     }
     return NULL;
 }
 
 void writer(){
     while (1) {
-        memset(writeBuffer, '\0', BUFFER_SIZE);
+        memset(write_buffer, '\0', BUFFER_SIZE);
         // cout << COLOR_RESET << "me: " << COLOR_RESET;
-        cout << "me: ";
-        isWriting = true;
+        fprintf(stderr, "me: ");
+        is_writing = 1;
         char c = '\0';
         int writePtr = -1;
         while((c = getchar()) != '\n'){
-            writeBuffer[++writePtr] = c;
+            write_buffer[++writePtr] = c;
         }
-	writeBuffer[++writePtr]=ESCCHAR;
-        //getline(cin, writeBuffer);
-        isWriting = false;
-        print(writeBuffer, buddyfd);
+	write_buffer[++writePtr]=ESCCHAR;
+        //getline(cin, write_buffer);
+        is_writing = 0;
+        print(write_buffer, buddyfd);
     }
 }
 
 void cleanerThread(void *arg){
-    print("bye!");
+    fprintf(stderr, "bye!");
     close(buddyfd);
     exit(EXIT_SUCCESS);
 
@@ -120,33 +114,32 @@ void cleanerThread(void *arg){
 
 void start_communication(){
     //pthread_cleanup_push(cleanerThread, NULL);
-    pthread_create(&readThread, NULL, &reader, NULL);
+    pthread_create(&read_thread, NULL, &reader, NULL);
     writer();
-    //pthread_join(readThread, NULL);
+    //pthread_join(read_thread, NULL);
 }
 
 
 int main(int argc, char *argv[]){
-    init();
     if(argc < 2){
-        print("Destination address is required");
+        fputs("Destination address is required\n", stderr);
         return -1;
     }
     signal(SIGINT, exit_handler);
     if(*argv[1] == 's'){
         if((buddyfd = start_server(DEFAULT_PORT)) < 0){
-            print("Unexpected error occured");
+            fputs("Unexpected error occured\n", stderr);
             return -1;
         }
         start_communication();
         return 0;
     }
-    string buddy = argv[1];
-    if((buddyfd = connect_server(buddy.c_str(), DEFAULT_PORT)) < 0){
-        print("Cannot reach host, try again later");
+    const char* buddy = argv[1];
+    if((buddyfd = connect_server(buddy, DEFAULT_PORT)) < 0){
+        fputs("Cannot reach host, try again later\n", stderr);
         return -1;
     }
-    print("Connection established succesfully");
+    fputs("Connection established succesfully\n", stderr);
     start_communication();
 	return 0;
 }
