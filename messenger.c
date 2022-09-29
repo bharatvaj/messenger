@@ -121,6 +121,7 @@ void start_communication(){
 
 
 int main(int argc, char *argv[]){
+    clog_enable();
     if(argc < 2){
         fputs("Destination address is required\n", stderr);
         return -1;

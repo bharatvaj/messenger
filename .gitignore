@@ -2,3 +2,5 @@ build/
 out/
 compile_commands.json
 messenger
+messenger.dSYM
+.cache/

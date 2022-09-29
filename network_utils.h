@@ -18,7 +18,7 @@
 #error Unknown architecture
 #endif
 
-#include <clog/clog.h>
+#include <clog.h>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 256
@@ -39,11 +39,11 @@ ssize_t write_data(int sockfd, char *msg, int msg_size){
 	while(++i < msg_size && msg[i] != '\0'){
 		sent_bytes = write (sockfd, &msg[i], 1);
 		if (sent_bytes < 0){
-			clog_e(_NET_TAG, "sending failed");
+			CLOG_E("sending failed");
 			return -1;
 		}
 	}
-	clog_i(_NET_TAG, "sent data: %s", msg);
+	CLOG_I("sent data: %s", msg);
 	return sent_bytes;
 }
 
@@ -74,11 +74,11 @@ int read_data (int sockfd, char *buffer, int buffer_size){
 	while(++i < buffer_size && buffer[i] != '\0'){
 	read_bytes = read (sockfd, &buffer[i], 1);
 	if (read_bytes < 0){
-		clog_e(_NET_TAG, "read failed");
+		CLOG_E("read failed");
 		return -1;
 	}
 	}
-	clog_i(_NET_TAG, "data received: %s", buffer);
+	CLOG_I("data received: %s", buffer);
 	return 0;
 }
 
@@ -98,10 +98,10 @@ FILE *read_file(int sockfd){
 
 int disconnect_server(int sockfd){
 	if(close(sockfd) == -1){
-		clog_e(_NET_TAG, "Disconnection Unsuccesful");
+		CLOG_E("Disconnection Unsuccesful");
         return -1;
 	}
-	else clog_i(_NET_TAG, "Disconnection Successful");
+	else CLOG_I("Disconnection Successful");
     return 0;
 }
 
@@ -110,18 +110,18 @@ int connect_server (const char * hostname, int port){
 	struct hostent *server;
 	//checking whether port is between 0 and 65536
 	if (port < 0 || port > 65535){
-		clog_e (_NET_TAG, "invalid port number, port number should be between 0 and 65536");
+		CLOG_E ("invalid port number, port number should be between 0 and 65536");
 		return -1;
 	}
 	//Create socket
 	int sockfd = socket(AF_INET , SOCK_STREAM , 0);
 	if (sockfd == -1){
-		clog_e(_NET_TAG, "Could not create socket");
+		CLOG_E("Could not create socket");
 		return -1;
 	}
-	clog_i(_NET_TAG, "Socket created");
+	CLOG_I("Socket created");
 	if((server = gethostbyname(hostname))==NULL){
-		clog_e(_NET_TAG, "no such host found");
+		CLOG_E("no such host found");
 		return -1;
 	}
 	memset((char *)&serv_addr, 0, sizeof(serv_addr));
@@ -133,11 +133,11 @@ int connect_server (const char * hostname, int port){
 		if(i++ > CON_MAX_ATTEMPTS){
 			//guess other hostnames for the user
 			close(sockfd);
-			clog_e(_NET_TAG, "cannot establish connection to %s on port %d", hostname, port);
+			CLOG_E("cannot establish connection to %s on port %d", hostname, port);
 			return -1;
 		}
 	}
-	clog_i(_NET_TAG, "connection established successfully to %s on port %d", hostname, port);
+	CLOG_I("connection established successfully to %s on port %d", hostname, port);
 	return sockfd;
 }
 
@@ -163,7 +163,7 @@ int start_server(int port){
 	socklen_t cli_size = sizeof(struct sockaddr_in);
 
 	if(cont == port){
-		clog_i(_NET_TAG, "Connection accepted");
+		CLOG_I("Connection accepted");
 		return accept(servfd, (struct sockaddr *)&client, &cli_size);
 	}
 	if(cont == 0)
@@ -171,25 +171,25 @@ int start_server(int port){
 	//Create socket
 	servfd = socket(PF_INET , SOCK_STREAM , 0);
 	if (servfd == -1){
-		clog_e(_NET_TAG, "could not create socket");
+		CLOG_E("could not create socket");
 		return -1;
 	}
 	//Bind
 	if( bind(servfd,(struct sockaddr *)&server , sizeof(server)) < 0){
-		clog_e(_NET_TAG, "bind failed");
+		CLOG_E("bind failed");
 		return -1;
 	}
 	//Listen
 	listen(servfd , SERV_BACKLOG);
 	//Accept and incoming connection
-	clog_i(_NET_TAG, "Waiting for incoming connections...");
+	CLOG_I("Waiting for incoming connections...");
 	//accept connection from an incoming client
 	int clifd = accept(servfd, (struct sockaddr *)&client, &cli_size);
 	if (clifd < 0){
-		clog_i(_NET_TAG, "Accept failed");
+		CLOG_I("Accept failed");
 		return -1;
 	}
-	clog_i(_NET_TAG, "Connection accepted");
+	CLOG_I("Connection accepted");
 	return clifd;
 }
 #endif

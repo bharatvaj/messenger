@@ -4,14 +4,14 @@ A simple one to one messenger for local networks
 
 ```sh
 # server
-$ messenger s 4500
+$ messenger s
 someone: hi
 me: hello
 ```
 
 ```sh
 # client
-$ messenger 4500
+$ messenger localhost 8400
 me: hi
 someone: hello
 me: _
